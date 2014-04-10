@@ -9,8 +9,20 @@ module OmniAuth
         :token_url => 'https://frontdeskhq.com/oauth/token'
       }
 
+      uid { raw_info["id"] }
+
+      extra do
+        raw_info
+      end
+
       def request_phase
         super
+      end
+
+      def raw_info
+        @raw_info ||= MultiJson.load(access_token.get('https://frontdeskhq.com/api/v2/front/account.json').body)
+      rescue ::Errno::ETIMEDOUT
+        raise ::Timeout::Error
       end
 
     end
